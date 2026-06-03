@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AstroWeb - Interactive Birth Chart and Daily Transits">
+  <title>AstroWeb - Astrology Chart</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <h1>AstroWeb</h1>
+      <p>Birth Chart &middot; Daily Transits &middot; Aspect Analysis</p>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-tab active" id="tab-input" role="tab" data-view="input">
+        &#9998; Enter Birth Data
+      </button>
+      <button class="nav-tab" id="tab-chart" role="tab" data-view="chart">
+        &#9800; Birth Chart
+      </button>
+      <button class="nav-tab" id="tab-transit" role="tab" data-view="transit">
+        &#9788; Daily Transits
+      </button>
+      <button class="nav-tab" id="tab-aspects" role="tab" data-view="aspects">
+        &#8904; Aspects
+      </button>
+    </nav>
+
+    <!-- Error Box -->
+    <div class="error-box" id="error-box" role="alert">
+      <strong>Error:</strong> <span id="error-text"></span>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay" aria-live="polite">
+      <div class="spinner"></div>
+      <p>Calculating your cosmic data...</p>
+    </div>
+
+    <!-- ===== VIEW: INPUT FORM ===== -->
+    <section class="view active" id="view-input" role="tabpanel">
+      <div class="form-card">
+        <h2>Enter Your Birth Details</h2>
+        <p>All times should be in 24-hour format. Use decimal coordinates for location.</p>
+
+        <form id="birth-form" autocomplete="on">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="birthDate">Birth Date *</label>
+              <input type="date" id="birthDate" name="birthDate" required value="1990-06-15">
+            </div>
+
+            <div class="form-group">
+              <label for="birthTime">Birth Time *</label>
+              <input type="time" id="birthTime" name="birthTime" required value="12:00">
+            </div>
+
+            <div class="form-group">
+              <label for="latitude">Latitude (-90 to 90)</label>
+              <input type="number" id="latitude" name="latitude" step="0.0001" min="-90" max="90" placeholder="e.g. 40.7128" value="40.7128">
+            </div>
+
+            <div class="form-group">
+              <label for="longitude">Longitude (-180 to 180)</label>
+              <input type="number" id="longitude" name="longitude" step="0.0001" min="-180" max="180" placeholder="e.g. -74.0060" value="-74.0060">
+            </div>
+
+            <div class="form-group full-width">
+              <label for="houseSystem">House System</label>
+              <select id="houseSystem" name="houseSystem">
+                <option value="placidus" selected>Placidus (Most Common)</option>
+                <option value="koch">Koch</option>
+                <option value="porphyrius">Porphyrius</option>
+                <option value="regiomontanus">Regiomontanus</option>
+                <option value="campanus">Campanus</option>
+                <option value="equal">Equal</option>
+                <option value="whole-sign">Whole Sign</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">Calculate My Chart &#8594;</button>
+        </form>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-subtle);">
+          <button id="clear-data-btn" style="background:none;border:none;color:var(--text-muted);font-size:0.8rem;cursor:pointer;padding:4px 0;">
+            Clear stored data
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: BIRTH CHART ===== -->
+    <section class="view" id="view-chart" role="tabpanel">
+      <div class="chart-view">
+        <div class="chart-view-header">
+          <h2>Your Natal Chart</h2>
+          <p id="chart-info-text">Generated from your birth data</p>
+        </div>
+
+        <div class="chart-layout">
+          <!-- Left: Chart Wheel -->
+          <div class="chart-wheel-container" id="chart-wheel-container">
+            <!-- SVG chart rendered here by BirthChart.js -->
+          </div>
+
+          <!-- Right: Planet Details -->
+          <div class="planet-details" id="planet-details-panel">
+            <h3>Planet Details</h3>
+
+            <div id="planet-select-buttons" style="margin-bottom:16px;"></div>
+
+            <div style="margin-bottom:16px;padding:12px;background:var(--bg-secondary);border-radius:8px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <span id="detail-planet-name" style="font-size:1.1rem;font-weight:600;color:var(--accent-gold);">Sun</span>
+                <span id="detail-planet-sign" style="color:var(--text-secondary);">♈ Aries</span>
+              </div>
+              <div style="display:flex;gap:16px;margin-top:8px;font-size:0.85rem;color:var(--text-muted);">
+                <span>Degree: <span id="detail-planet-degree" style="color:var(--text-secondary);">15°12'</span></span>
+                <span>House: <span id="detail-planet-house" style="color:var(--accent-blue);">3</span></span>
+              </div>
+            </div>
+
+            <div id="planet-details-list">
+              <!-- Populated by app.js -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: TRANSIT VIEW ===== -->
+    <section class="view" id="view-transit" role="tabpanel">
+      <div id="transit-view-content">
+        <!-- TransitView.js renders here -->
+      </div>
+    </section>
+
+    <!-- ===== VIEW: ASPECTS ===== -->
+    <section class="view" id="view-aspects" role="tabpanel">
+      <div id="aspect-grid-content">
+        <!-- AspectGrid.js renders here -->
+      </div>
+    </section>
+
+  </div><!-- end .app-container -->
+
+  <!-- Components -->
+  <script src="components/BirthChart.js"></script>
+  <script src="components/TransitView.js"></script>
+  <script src="components/AspectGrid.js"></script>
+
+  <!-- Main App -->
+  <script src="app.js"></script>
+</body>
+</html>
